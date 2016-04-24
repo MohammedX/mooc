@@ -8,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,7 +29,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     // Change with the root url
-    private final String URL_ROOT = "http://192.168.43.195/MOOC_Organizer/";
+    private String URL_ROOT = "http://192.168.43.195/MOOC_Organizer/";
     private final String URL_API = "getCourses.php";
     private final String URL_IMG = "";
 
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager mLayoutManager;
     private CoursesList coursesList;
     private TextView textView;
+    private EditText editText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.courses_by_swipe_refresh_layout);
         recyclerView = (RecyclerView) findViewById(R.id.courses_by_recycler_view);
-
+        editText = (EditText) findViewById(R.id.editText);
         textView = (TextView) findViewById(R.id.textView);
 
         mAdapter = new CoursesAdapter(coursesLists);
@@ -56,8 +58,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
 
-        prepareEventsData();
-
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -65,7 +65,8 @@ public class MainActivity extends AppCompatActivity {
                 // Refresh items
                 mSwipeRefreshLayout.setRefreshing(true);
                 coursesLists.clear();
-                prepareEventsData();
+                URL_ROOT = "http://"+editText.getText().toString()+"/MOOC_Organizer/";
+                prepareCoursesData();
                 recyclerView.setAdapter(mAdapter);
                 mAdapter.notifyDataSetChanged();
                 mSwipeRefreshLayout.setRefreshing(false);
@@ -73,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void prepareEventsData() {
+    private void prepareCoursesData() {
         StringRequest strReq = new StringRequest(Request.Method.POST, URL_ROOT + URL_API, new Response.Listener<String>() {
 
             @Override
